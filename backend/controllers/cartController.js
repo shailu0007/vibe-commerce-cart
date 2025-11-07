@@ -1,16 +1,11 @@
 import Product from '../models/Product.js';
 
-// Let's use a simple in-memory array to act as our cart storage for this demo.
 let cartItems = [];
 
-// A helper function to calculate the total price
 const calculateTotal = () => {
   return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 };
 
-// @desc    Get all items from the cart
-// @route   GET /api/cart
-// @access  Public
 const getCart = async (req, res) => {
   res.json({
     items: cartItems,
@@ -18,28 +13,21 @@ const getCart = async (req, res) => {
   });
 };
 
-// @desc    Add an item to the cart
-// @route   POST /api/cart
-// @access  Public
+
 const addToCart = async (req, res) => {
   try {
     const { productId, qty } = req.body;
     const quantity = Number(qty);
 
-    // Fetch product details
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    //
-    // --- THIS IS THE CORRECTED LINE ---
-    // We convert the ObjectId to a string before comparing.
-    //
+
     const existingItem = cartItems.find((item) => item.productId.toString() === productId);
 
     if (existingItem) {
-      // This block will now run correctly
       existingItem.quantity += quantity;
     } else {
       cartItems.push({
@@ -60,13 +48,10 @@ const addToCart = async (req, res) => {
   }
 };
 
-// @desc    Remove an item from the cart
-// @route   DELETE /api/cart/:id
-// @access  Public
+
 const removeFromCart = async (req, res) => {
   const productId = req.params.id;
 
-  // Filter the cart, keeping all items except the one with the matching productId
   cartItems = cartItems.filter((item) => item.productId.toString() !== productId);
 
   res.json({
@@ -75,9 +60,7 @@ const removeFromCart = async (req, res) => {
   });
 };
 
-// @desc    Process a mock checkout
-// @route   POST /api/checkout
-// @access  Public
+
 const checkout = async (req, res) => {
   const { cartItems: checkoutItems } = req.body;
 
